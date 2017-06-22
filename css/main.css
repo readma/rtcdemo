@@ -1,0 +1,62 @@
+
+.text-center{
+    text-align: center;
+}
+
+#callerVideo{
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    z-index: -100;
+    -ms-transform: translateX(-50%) translateY(-50%);
+    -moz-transform: translateX(-50%) translateY(-50%);
+    -webkit-transform: translateX(-50%) translateY(-50%);
+    transform: translateX(-50%) translateY(-50%);
+    background-size: cover;
+	border: 1px solid gray;
+}
+
+#selfVideo{
+    width: 20%;
+    height: 20%;
+    bottom: 0;
+    position: fixed;
+    right: 0;
+	border: 1px solid gray;
+}
+
+#acceptCallBox
+{
+    display: none; /* Hidden by default */
+    padding: 15px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    z-index: 1;
+    -ms-transform: translateX(-50%) translateY(-50%);
+    -moz-transform: translateX(-50%) translateY(-50%);
+    -webkit-transform: translateX(-50%) translateY(-50%);
+    transform: translateX(-50%) translateY(-50%);
+    background-size: cover;
+	border: 1px solid gray;
+    background-color: rgba(0,0,0,0.7); /* Black w/ opacity */
+    text-align: center;
+}
+
+#acceptCallLabel {
+	color: white;
+	min-height: 60px;
+}
+
+.button
+{
+	width: 60px;
+}
