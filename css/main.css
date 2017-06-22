@@ -3,6 +3,10 @@
     text-align: center;
 }
 
+#videos{
+    /*z-index: -100;*/
+}
+
 #callerVideo{
     position: fixed;
     top: 50%;
@@ -11,7 +15,6 @@
     min-height: 100%;
     width: auto;
     height: auto;
-    z-index: -100;
     -ms-transform: translateX(-50%) translateY(-50%);
     -moz-transform: translateX(-50%) translateY(-50%);
     -webkit-transform: translateX(-50%) translateY(-50%);

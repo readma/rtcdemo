@@ -27,22 +27,24 @@
 	    <div class="modal-dialog">
 		  <!-- Modal content-->
 		  <div class="modal-content">
+		  <form id="loginForm">
 			<div class="modal-header">
 			  <h4 class="modal-title">用户登录</h4>
 			</div>
 			<div class="modal-body">
 			  <div class="form-group">
 				<label for="userName">用户名:</label>
-				<input type="text" class="form-control" autofocus="autofocus" id="userName">
+				<input type="text" class="form-control" autofocus="autofocus" id="userName" placeholder="使用者姓名或其它用户标识" maxlength="50">
 			  </div>
 			  <div class="form-group">
 				<label for="userPwd">密码:</label>
-				<input type="password" class="form-control" id="userPwd">
+				<input type="password" class="form-control" id="userPwd" placeholder="暂时无须密码" maxlength="50">
 			  </div>
 			</div>
 			<div class="modal-footer">
-			  <button type="button" class="btn btn-primary btn-lg" id="loginBtn" data-loading-text="<i class='fa fa-spinner fa-spin'></i> 正在登录" style="font-size:20px">登录</button>
+			  <button type="submit" class="btn btn-primary btn-lg" id="loginBtn" data-loading-text="<i class='fa fa-spinner fa-spin'></i> 正在登录" style="font-size:20px">登录</button>
 			</div>
+		  </form>
 		  </div>
 		</div>
 	  </div>
@@ -85,6 +87,23 @@
 		  </div>
 		</div>
 	  </div>
+	  <div id="videos" style="width:800;" class="hide">
+		<div>
+			<video id="callerVideo" poster="img/vidbg.png" playsinline autoplay></video>
+		</div>
+		<div>
+			<video id="selfVideo" poster="img/vidbg.png" muted autoplay></video>
+		</div>
+	  </div>
+	  
+			<video id="xxx" poster="img/vidbg.png" playsinline autoplay></video>
+	  <div id="userPanel" class="panel panel-default" style="position:fixed;left:500; top:0">
+		<div class="panel-heading">Panel Heading</div>
+		<div class="panel-body">Panel Content</div>
+	  </div>
+
+        <audio id="callerTone" src="media/callertone.mp3" loop preload="auto"></audio>
+        <audio id="msgTone" src="media/msgtone.mp3" preload="auto"></audio>
 	  <!--div>
 		<div style="background-color:white; width:300px; padding:10px;">
 			用户：<input type="text" id="userName" /><br>
@@ -97,19 +116,10 @@
 			<div id="otherClients"></div>
 		</div>
 		
-		<div>
-			<video id="callerVideo" poster="img/vidbg.png" playsinline autoplay></video>
-		</div>
-		<div>
-			<video id="selfVideo" poster="img/vidbg.png" muted autoplay></video>
-		</div>
 		<div id="acceptCallBox">
 		  <div id="acceptCallLabel"></div>
 		  <button id="callAcceptButton" class="button">接受</button> <button id="callRejectButton" class="button">拒绝</button>
 		</div>
-
-        <audio id="callerTone" src="media/callertone.mp3" loop preload="auto"></audio>
-        <audio id="msgTone" src="media/msgtone.mp3" preload="auto"></audio>
 		
 		<div id="easyrtcErrorDialog" style="display: none;">
 			<div class="easyrtcErrorDialog_title">系统信息</div>

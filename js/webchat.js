@@ -22,7 +22,10 @@ function initEasyRtc()
 
 function installUIEventListeners()
 {
-    $("#loginBtn").click(connect);
+    $("#loginForm").submit(function(event){
+		connect();
+		event.preventDefault();
+	});
 }
 
 function getUserName(userId)
@@ -44,6 +47,8 @@ function connect() {
 function loginSuccess(easyrtcid) {
 	$("#loginModal").modal("hide");
 	$("#loginBtn").button("reset");
+	$("#videos").removeClass('hide').addClass('show');
+	//$("#userPanel").addClass('show');
     //enable("disconnectButton");
     //enable('otherClients');
     myEasyrtcId = easyrtcid;
