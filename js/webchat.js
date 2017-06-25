@@ -1,8 +1,7 @@
 
 var myEasyrtcId = "";
 var haveSelfVideo = false;
-
-var predefinedUsers = {"id1" : "User1", "id2": "User2", "id3" : "User3"};
+var waitingResponseTimeout;
 
 $(document).ready(function(){
 	$("#loginModal").modal();
@@ -28,11 +27,6 @@ function installUIEventListeners()
 	});
 }
 
-function getUserName(userId)
-{
-	return predefinedUsers[userId];
-}
-
 function getKeyByValue(object, value) {
   return Object.keys(object).find(key => object[key] === value);
 }
@@ -40,19 +34,17 @@ function getKeyByValue(object, value) {
 function connect() {
 	$("#loginBtn").button("loading");
 	easyrtc.setRoomOccupantListener(updateRoomOccupants);
-	easyrtc.setUsername($("#userName").value);
+	easyrtc.setUsername($("#userName").val());
 	easyrtc.connect("DemoChatApp", loginSuccess, loginFailure);
 }
 
 function loginSuccess(easyrtcid) {
 	$("#loginModal").modal("hide");
 	$("#loginBtn").button("reset");
-	$("#videos").removeClass('hide').addClass('show');
-	//$("#userPanel").addClass('show');
+	$("#videoContainer").removeClass('hide').addClass('show');
     //enable("disconnectButton");
     //enable('otherClients');
-    myEasyrtcId = easyrtcid;
-    //document.getElementById("iam").innerHTML = "已连接为 " + easyrtc.idToName(easyrtcid);
+	updateConnectionInfo(easyrtcid);
 	
 }
 
@@ -62,13 +54,18 @@ function loginFailure(errorCode, message) {
     easyrtc.showError(errorCode, message);
 }
 
-function initAudioDevices()
-{
+function initAudioDevices() {
       easyrtc.getAudioSinkList( function(list) {
          for(let ele of list ) {
              addSinkButton(ele.label, ele.deviceId);
          }
       });
+}
+
+function updateConnectionInfo(easyrtcid)
+{
+    myEasyrtcId = easyrtcid;
+    $("#connectionInfo").text(easyrtcid ? ("已连接为 " + easyrtc.idToName(easyrtcid)) : "已断开连接");
 }
 
 function addSinkButton(label, deviceId){
@@ -81,9 +78,15 @@ function addSinkButton(label, deviceId){
 }
 
 
-function hangup() {
-    easyrtc.hangupAll();
-    disable('hangupButton');
+function hangup(easyrtcid) {
+	if(easyrtcid)
+	{
+		easyrtc.hangup(easyrtcid);
+	}
+	else
+	{
+		easyrtc.hangupAll();
+	}
 }
 
 function clearConnectList() {
@@ -95,7 +98,22 @@ function clearConnectList() {
 
 
 function updateRoomOccupants (roomName, occupants, isPrimary) {
+	$("#userList").empty();
+    for(var easyrtcid in occupants) {
+		var html = "<li class='list-group-item'>";
+		html += easyrtc.idToName(easyrtcid);
+		html += "&nbsp;<span id='talkingTo" + easyrtcid + "' class='hide'>[视频中]</span>";
+		html += "<button class='btn btn-primary btn-md badge' onclick='performCall(\"";
+		html += easyrtcid;
+		html += "\")'>呼叫</button>"
+		html += "<button class='btn btn-primary btn-md badge' onclick='hangup(\"";
+		html += easyrtcid;
+		html += "\")'>挂断</button></li>"
+		$("#userList").append(html);
+    }
+	
 	/*
+	<li class="list-group-item">New <span class="badge">12</span></li>
     clearConnectList();
     var otherClientDiv = document.getElementById('otherClients');
     for(var easyrtcid in occupants) {
@@ -113,6 +131,26 @@ function updateRoomOccupants (roomName, occupants, isPrimary) {
 	*/
 }
 
+function showAlert(msg, title) {
+	var prom = ezBSAlert({
+		headerText: title ? "提示信息" : title,
+		messageText: msg,
+		alertType: "info"
+    }).done(function (e) {
+    });
+}
+
+function closeAlertDialog(followedFunc) {
+	if ($('#ezAlerts').length)
+	{
+		$('#ezAlerts').modal("hide");
+		setTimeout(closeAlertDialog, 20, followedFunc);
+	}
+	else if(followedFunc)
+	{
+		followedFunc();
+	}
+}
 
 function setUpMirror() {
     if( !haveSelfVideo) {
@@ -123,37 +161,53 @@ function setUpMirror() {
     }
 }
 
-function performCall(otherEasyrtcid) {
-	document.getElementById('callerTone').play();
+function performCall(easyrtcid) {
+	var audio = $('#callerTone')[0];
+	audio.play();
+	
+	ezBSAlert({
+		headerText: "呼叫中",
+		messageText: "正在呼叫 " + easyrtc.idToName(easyrtcid),
+		okButtonText: "取消",
+		alertType: "info"
+    }).done(function(e) {
+		if(e) {
+			audio.pause();
+			easyrtc.hangupAll();
+		}
+    });
+	
     easyrtc.hangupAll();
     var acceptedCB = function(accepted, easyrtcid) {
+		if(waitingResponseTimeout)clearTimeout(waitingResponseTimeout);
+		audio.pause();
         if( !accepted ) {
-            easyrtc.showError("CALL-REJECTEd", "Sorry, your call to " + easyrtc.idToName(easyrtcid) + " was rejected");
-            enable('otherClients');
+            showAlert(easyrtc.idToName(easyrtcid) + " 拒绝了视频请求！");
         }
-		document.getElementById('callerTone').pause();
     };
 
     var successCB = function() {
+		if(waitingResponseTimeout)clearTimeout(waitingResponseTimeout);
+		audio.pause();
+		closeAlertDialog();
         if( easyrtc.getLocalStream()) {
             setUpMirror();
         }
-        enable('hangupButton');
-		document.getElementById('callerTone').pause();
     };
     var failureCB = function() {
-        enable('otherClients');
-		document.getElementById('callerTone').pause();
+		if(waitingResponseTimeout)clearTimeout(waitingResponseTimeout);
+		audio.pause();
+		showAlert("请求失败！");
     };
-    easyrtc.call(otherEasyrtcid, successCB, failureCB, acceptedCB);
-    enable('hangupButton');
+	
+    easyrtc.call(easyrtcid, successCB, failureCB, acceptedCB);
+	
+	waitingResponseTimeout = setTimeout(function(){ closeAlertDialog(function(){showAlert("对方无响应，已挂断本次请求！");})}, 30000);
 }
 
-
-
 function disconnect() {
-  easyrtc.disconnect();			  
-  document.getElementById("iam").innerHTML = "logged out";
+	easyrtc.disconnect();
+	updateConnectionInfo("");
   enable("connectButton");
   disable("disconnectButton"); 
   easyrtc.clearMediaStream( document.getElementById('selfVideo'));
@@ -168,14 +222,13 @@ easyrtc.setStreamAcceptor( function(easyrtcid, stream) {
     setUpMirror();
     var video = document.getElementById('callerVideo');
     easyrtc.setVideoObjectSrc(video,stream);
-    enable("hangupButton");
+	$("#talkingTo" + easyrtcid).removeClass("hide");
 });
 
 
 
 easyrtc.setOnStreamClosed( function (easyrtcid) {
     easyrtc.setVideoObjectSrc(document.getElementById('callerVideo'), "");
-    disable("hangupButton");
 });
 
 
@@ -183,52 +236,192 @@ var callerPending = null;
 
 easyrtc.setCallCancelled( function(easyrtcid){
     if( easyrtcid === callerPending) {
-        document.getElementById('acceptCallBox').style.display = "none";
+        closeAlertDialog();
         callerPending = false;
     }
 });
 
 
 easyrtc.setAcceptChecker(function(easyrtcid, callback) {
-	document.getElementById('msgTone').play();
-    document.getElementById('acceptCallBox').style.display = "block";
+	var audio = $('#callerTone')[0];
+	audio.play();
     callerPending = easyrtcid;
-    if( easyrtc.getConnectionCount() > 0 ) {
-        document.getElementById('acceptCallLabel').innerHTML = "是否挂断当前通话并接受 " + easyrtc.idToName(easyrtcid) + " 的新请求?";
-    }
-    else {
-        document.getElementById('acceptCallLabel').innerHTML = "是否接受来自 " + easyrtc.idToName(easyrtcid) + " 的视频请求?";
-    }
+	var msg = easyrtc.getConnectionCount() > 0 ? ("是否挂断当前通话并接受 " + easyrtc.idToName(easyrtcid) + " 的视频请求?") : ("是否接受来自 " + easyrtc.idToName(easyrtcid) + " 的视频请求?");
+
     var acceptTheCall = function(wasAccepted) {
-        document.getElementById('acceptCallBox').style.display = "none";
+		audio.pause();
+        closeAlertDialog();
         if( wasAccepted && easyrtc.getConnectionCount() > 0 ) {
             easyrtc.hangupAll();
         }
         callback(wasAccepted);
         callerPending = null;
-		document.getElementById('msgTone').pause();
     };
-    document.getElementById("callAcceptButton").onclick = function() {
-        acceptTheCall(true);
-    };
-    document.getElementById("callRejectButton").onclick =function() {
-        acceptTheCall(false);
-    };
-} );
+	
+	ezBSAlert({
+      type: "confirm",
+      messageText: msg,
+      headerText: "视频请求",
+      alertType: "primary"
+    }).done(function (e) {
+		acceptTheCall(e);
+    });
+});
 
-function disable(domId) {
-    document.getElementById(domId).disabled = "disabled";
+//third party functions
+function ezBSAlert (options) {
+	var deferredObject = $.Deferred();
+	var defaults = {
+		type: "alert", //alert, prompt,confirm 
+		modalSize: 'modal-sm', //modal-sm, modal-lg
+		okButtonText: '确定',
+		cancelButtonText: '取消',
+		yesButtonText: '是',
+		noButtonText: '否',
+		headerText: '标题',
+		messageText: '消息',
+		alertType: 'default', //default, primary, success, info, warning, danger
+		inputFieldType: 'text', //could ask for number,email,etc
+	}
+	$.extend(defaults, options);
+  
+	var _show = function(){
+		var headClass = "navbar-default";
+		switch (defaults.alertType) {
+			case "primary":
+				headClass = "alert-primary";
+				break;
+			case "success":
+				headClass = "alert-success";
+				break;
+			case "info":
+				headClass = "alert-info";
+				break;
+			case "warning":
+				headClass = "alert-warning";
+				break;
+			case "danger":
+				headClass = "alert-danger";
+				break;
+        }
+		$('BODY').append(
+			'<div id="ezAlerts" class="modal fade">' +
+			'<div class="modal-dialog" class="' + defaults.modalSize + '">' +
+			'<div class="modal-content">' +
+			'<div id="ezAlerts-header" class="modal-header ' + headClass + '">' +
+			//'<button id="close-button" type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>' +
+			'<h4 id="ezAlerts-title" class="modal-title">Modal title</h4>' +
+			'</div>' +
+			'<div id="ezAlerts-body" class="modal-body">' +
+			'<div id="ezAlerts-message" ></div>' +
+			'</div>' +
+			'<div id="ezAlerts-footer" class="modal-footer">' +
+			'</div>' +
+			'</div>' +
+			'</div>' +
+			'</div>'
+		);
+
+		$('.modal-header').css({
+			'padding': '15px 15px',
+			'-webkit-border-top-left-radius': '5px',
+			'-webkit-border-top-right-radius': '5px',
+			'-moz-border-radius-topleft': '5px',
+			'-moz-border-radius-topright': '5px',
+			'border-top-left-radius': '5px',
+			'border-top-right-radius': '5px'
+		});
+    
+		$('#ezAlerts-title').text(defaults.headerText);
+		$('#ezAlerts-message').html(defaults.messageText);
+
+		var keyb = "false", backd = "static";
+		var calbackParam = "";
+		switch (defaults.type) {
+			case 'alert':
+				keyb = "true";
+				backd = "true";
+				$('#ezAlerts-footer').html('<button class="btn btn-' + defaults.alertType + '">' + defaults.okButtonText + '</button>').on('click', ".btn", function () {
+					calbackParam = true;
+					$('#ezAlerts').modal('hide');
+				});
+				break;
+			case 'confirm':
+				var btnhtml = '<button id="ezok-btn" class="btn btn-primary">' + defaults.yesButtonText + '</button>';
+				if (defaults.noButtonText && defaults.noButtonText.length > 0) {
+					btnhtml += '<button id="ezclose-btn" class="btn btn-default">' + defaults.noButtonText + '</button>';
+				}
+				$('#ezAlerts-footer').html(btnhtml).on('click', 'button', function (e) {
+						if (e.target.id === 'ezok-btn') {
+							calbackParam = true;
+							$('#ezAlerts').modal('hide');
+						} else if (e.target.id === 'ezclose-btn') {
+							calbackParam = false;
+							$('#ezAlerts').modal('hide');
+						}
+					});
+				break;
+			case 'prompt':
+				$('#ezAlerts-message').html(defaults.messageText + '<br /><br /><div class="form-group"><input type="' + defaults.inputFieldType + '" class="form-control" id="prompt" /></div>');
+				$('#ezAlerts-footer').html('<button class="btn btn-primary">' + defaults.okButtonText + '</button>').on('click', ".btn", function () {
+					calbackParam = $('#prompt').val();
+					$('#ezAlerts').modal('hide');
+				});
+				break;
+		}
+   
+		$('#ezAlerts').modal({ 
+          show: false, 
+          backdrop: backd, 
+          keyboard: keyb 
+        }).on('hidden.bs.modal', function (e) {
+			$('#ezAlerts').remove();
+			deferredObject.resolve(calbackParam);
+		}).on('shown.bs.modal', function (e) {
+			if ($('#prompt').length > 0) {
+				$('#prompt').focus();
+			}
+		}).modal('show');
+	}
+	
+  _show();
+  return deferredObject.promise();    
 }
 
+//Samples:
+/*
+$(document).ready(function(){
+  $("#btnAlert").on("click", function(){  	
+    var prom = ezBSAlert({
+      messageText: "hello world",
+      alertType: "danger"
+    }).done(function (e) {
+      $("body").append('<div>Callback from alert</div>');
+    });
+  });   
+  
+  $("#btnConfirm").on("click", function(){  	
+    ezBSAlert({
+      type: "confirm",
+      messageText: "hello world",
+      alertType: "info"
+    }).done(function (e) {
+      $("body").append('<div>Callback from confirm ' + e + '</div>');
+    });
+  });   
 
-function enable(domId) {
-    document.getElementById(domId).disabled = "";
-}
-
-function closeErrorDialog()
-{
-	var errorDiv = document.getElementById('easyrtcErrorDialog');
-	document.getElementById('easyrtcErrorDialog_body').innerHTML = "";
-	errorDiv.style.display = "none";
-}
-
+  $("#btnPrompt").on("click", function(){  	
+    ezBSAlert({
+      type: "prompt",
+      messageText: "Enter Something",
+      alertType: "primary"
+    }).done(function (e) {
+      ezBSAlert({
+        messageText: "You entered: " + e,
+        alertType: "success"
+      });
+    });
+  });   
+  
+});
+*/

@@ -87,23 +87,29 @@
 		  </div>
 		</div>
 	  </div>
-	  <div id="videos" style="width:800;" class="hide">
-		<div>
-			<video id="callerVideo" poster="img/vidbg.png" playsinline autoplay></video>
-		</div>
-		<div>
-			<video id="selfVideo" poster="img/vidbg.png" muted autoplay></video>
-		</div>
-	  </div>
 	  
-			<video id="xxx" poster="img/vidbg.png" playsinline autoplay></video>
-	  <div id="userPanel" class="panel panel-default" style="position:fixed;left:500; top:0">
-		<div class="panel-heading">Panel Heading</div>
-		<div class="panel-body">Panel Content</div>
+	  <div id="videoContainer" class="hide">
+		  <div style="position:relative;">
+			<video id="callerVideo" poster="img/vidbg.png" playsinline autoplay></video>
+			<video id="selfVideo" poster="img/vidbg.png" muted autoplay></video>
+		  
+			<div id="userPanel" class="panel panel-default" style="position:absolute; left:20px; top:20px; width:350px">
+				<div class="panel-heading">
+					<div class="panel-title" data-toggle="collapse" href="#otherUsers"></div>
+					<div id="connectionInfo" />
+				</div>
+				<div class="panel-collapse collapse in">
+					<span>其它已连接用户：</span>
+					<ul id="userList" class="list-group">
+					  <li class="list-group-item">New <span class="badge">12</span></li>
+					  <li class="list-group-item">Deleted <span class="badge">5</span></li> 
+					  <li class="list-group-item">Warnings <span class="badge">3</span></li> 
+					</ul>
+				</div>
+			</div>
+		  </div>
 	  </div>
 
-        <audio id="callerTone" src="media/callertone.mp3" loop preload="auto"></audio>
-        <audio id="msgTone" src="media/msgtone.mp3" preload="auto"></audio>
 	  <!--div>
 		<div style="background-color:white; width:300px; padding:10px;">
 			用户：<input type="text" id="userName" /><br>
@@ -128,5 +134,8 @@
 		</div>
 	  </div-->
 	</div>
+	
+	<audio id="callerTone" type="audio/mpeg" src="media/callertone.mp3" loop preload="auto"></audio>
+	<audio id="msgTone" type="audio/mpeg" src="media/msgtone.mp3" preload="auto"></audio>
     </body>
 </html>

@@ -3,8 +3,45 @@
     text-align: center;
 }
 
+#videoContainer{
+	position: fixed;
+	left: 0px;
+	top: 0px;
+    min-width: 100%;
+    min-height: 100%;
+    z-index: -100;
+	display: flex;
+}
+
+#callerVideo{
+	position: fixed;
+    min-width: 100%;
+    min-height: 100%;
+	border: 1px solid gray;
+}
+
+#selfVideo{
+	position:fixed;
+    right: 0px;
+    bottom: 0px;
+    width: 20%;
+    height: 20%;
+	border: 1px solid gray;
+}
+
+.panel-heading .panel-title:after {
+	font-family: "FontAwesome";
+    content: "\f056";
+    float: right;
+    color: grey;
+}
+.panel-heading .panel-title.collapsed:after {
+	font-family: "FontAwesome";
+    content: "\f055";
+}
+
+/*
 #videos{
-    /*z-index: -100;*/
 }
 
 #callerVideo{
@@ -34,7 +71,7 @@
 
 #acceptCallBox
 {
-    display: none; /* Hidden by default */
+    display: none; 
     padding: 15px;
     position: fixed;
     top: 50%;
@@ -50,7 +87,7 @@
     transform: translateX(-50%) translateY(-50%);
     background-size: cover;
 	border: 1px solid gray;
-    background-color: rgba(0,0,0,0.7); /* Black w/ opacity */
+    background-color: rgba(0,0,0,0.7); 
     text-align: center;
 }
 
@@ -58,7 +95,7 @@
 	color: white;
 	min-height: 60px;
 }
-
+*/
 .button
 {
 	width: 60px;
