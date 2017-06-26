@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
     <head>
         <title>网页视频通话演示</title>
@@ -49,45 +49,6 @@
 		</div>
 	  </div>
 	  
-	  <!-- Calling Modal -->
-	  <div class="modal fade" id="callingModal" role="dialog" data-backdrop="static" data-keyboard="false">
-	    <div class="modal-dialog">
-		  <!-- Modal content-->
-		  <div class="modal-content">
-			<div class="modal-header">
-			  <h4 class="modal-title">呼叫中</h4>
-			</div>
-			<div class="modal-body">
-				<label>正在呼叫</label><label id="receiver"></label>
-			</div>
-			<div class="modal-footer">
-			  <button type="button" class="btn btn-primary" id="cancelBtn">取消</button>
-			</div>
-		  </div>
-		  </div>
-	  </div>
-	  
-	  <!-- Receiving Modal -->
-	  <div class="modal fade" id="receivingModal" role="dialog" data-backdrop="static" data-keyboard="false">	
-	    <div class="modal-dialog">	
-		  <!-- Modal content-->
-		  <div class="modal-content">
-			<div class="modal-header">
-			  <h4 class="modal-title">视频请求</h4>
-			</div>
-			<div class="modal-body">
-			  <div class="form-group">
-				<label for="userName">用户</label><label id="caller"></label><label for="userName">正在请求视频通话</label>
-			  </div>
-			</div>
-			<div class="modal-footer">
-			  <button type="button" class="btn btn-primary" id="acceptBtn">接受</button>
-			  <button type="button" class="btn btn-primary" id="rejectBtn">拒绝</button>
-			</div>
-		  </div>
-		</div>
-	  </div>
-	  
 	  <div id="videoContainer" class="hide">
 		  <div style="position:relative;">
 			<video id="callerVideo" poster="img/vidbg.png" playsinline autoplay></video>
@@ -110,29 +71,12 @@
 		  </div>
 	  </div>
 
-	  <!--div>
-		<div style="background-color:white; width:300px; padding:10px;">
-			用户：<input type="text" id="userName" /><br>
-			<button id="connectButton" onclick="connect()" class="button">登录</button>
-			<button id="disconnectButton" onclick="disconnect()" class="button">退出</button>
-			<button id="hangupButton" disabled="disabled" onclick="hangup()" class="button">挂断</button>
-			<br>
-			<div id="iam"></div><br />
-			<strong>点击呼叫其它已登录用户：</strong>
-			<div id="otherClients"></div>
-		</div>
 		
-		<div id="acceptCallBox">
-		  <div id="acceptCallLabel"></div>
-		  <button id="callAcceptButton" class="button">接受</button> <button id="callRejectButton" class="button">拒绝</button>
-		</div>
-		
-		<div id="easyrtcErrorDialog" style="display: none;">
-			<div class="easyrtcErrorDialog_title">系统信息</div>
-			<div id="easyrtcErrorDialog_body"></div>
-			<button class="easyrtcErrorDialog_okayButton" style="width:60px" onclick="closeErrorDialog()">确定</button>
-		</div>
-	  </div-->
+        <div id="easyrtcErrorDialog" style="display: none;">
+            <div class="easyrtcErrorDialog_title">错误</div>
+            <div id="easyrtcErrorDialog_body"></div>
+            <button class="easyrtcErrorDialog_okayButton" style="width:60px" onclick="closeErrorDialog()">确定</button>
+        </div>
 	</div>
 	
 	<audio id="callerTone" type="audio/mpeg" src="media/callertone.mp3" loop preload="auto"></audio>

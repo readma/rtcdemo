@@ -4,8 +4,11 @@ var haveSelfVideo = false;
 var waitingResponseTimeout;
 
 $(document).ready(function(){
-	$("#loginModal").modal();
-	installUIEventListeners();
+    $("#loginForm").submit(function (event) {
+        connect();
+        event.preventDefault();
+    });
+    $("#loginModal").modal();
 	initEasyRtc();
 });
 
@@ -17,14 +20,6 @@ function initEasyRtc()
 	else{
 		easyrtc.setSocketUrl(":808");
 	}
-}
-
-function installUIEventListeners()
-{
-    $("#loginForm").submit(function(event){
-		connect();
-		event.preventDefault();
-	});
 }
 
 function getKeyByValue(object, value) {
@@ -42,8 +37,6 @@ function loginSuccess(easyrtcid) {
 	$("#loginModal").modal("hide");
 	$("#loginBtn").button("reset");
 	$("#videoContainer").removeClass('hide').addClass('show');
-    //enable("disconnectButton");
-    //enable('otherClients');
 	updateConnectionInfo(easyrtcid);
 	
 }
@@ -111,24 +104,6 @@ function updateRoomOccupants (roomName, occupants, isPrimary) {
 		html += "\")'>挂断</button></li>"
 		$("#userList").append(html);
     }
-	
-	/*
-	<li class="list-group-item">New <span class="badge">12</span></li>
-    clearConnectList();
-    var otherClientDiv = document.getElementById('otherClients');
-    for(var easyrtcid in occupants) {
-        var button = document.createElement('button');
-        button.onclick = function(easyrtcid) {
-            return function() {
-                performCall(easyrtcid);
-            };
-        }(easyrtcid);
-
-        var label = document.createTextNode("呼叫 " + easyrtc.idToName(easyrtcid));
-        button.appendChild(label);
-        otherClientDiv.appendChild(button);
-    }
-	*/
 }
 
 function showAlert(msg, title) {
@@ -141,10 +116,10 @@ function showAlert(msg, title) {
 }
 
 function closeAlertDialog(followedFunc) {
-	if ($('#ezAlerts').length)
+	if ($("#ezAlerts").length)
 	{
-		$('#ezAlerts').modal("hide");
-		setTimeout(closeAlertDialog, 20, followedFunc);
+		$("#ezAlerts").modal("hide");
+		setTimeout(closeAlertDialog, 50, followedFunc);
 	}
 	else if(followedFunc)
 	{
@@ -162,8 +137,7 @@ function setUpMirror() {
 }
 
 function performCall(easyrtcid) {
-	var audio = $('#callerTone')[0];
-	audio.play();
+    $('#callerTone')[0].play();
 	
 	ezBSAlert({
 		headerText: "呼叫中",
@@ -172,37 +146,43 @@ function performCall(easyrtcid) {
 		alertType: "info"
     }).done(function(e) {
 		if(e) {
-			audio.pause();
+            $('#callerTone')[0].pause();
 			easyrtc.hangupAll();
 		}
     });
 	
     easyrtc.hangupAll();
-    var acceptedCB = function(accepted, easyrtcid) {
-		if(waitingResponseTimeout)clearTimeout(waitingResponseTimeout);
-		audio.pause();
+    var acceptedCB = function (accepted, easyrtcid) {
+        cleanUpCalling();
         if( !accepted ) {
             showAlert(easyrtc.idToName(easyrtcid) + " 拒绝了视频请求！");
         }
     };
 
-    var successCB = function() {
-		if(waitingResponseTimeout)clearTimeout(waitingResponseTimeout);
-		audio.pause();
-		closeAlertDialog();
+    var successCB = function () {
+        cleanUpCalling();
         if( easyrtc.getLocalStream()) {
             setUpMirror();
         }
     };
-    var failureCB = function() {
-		if(waitingResponseTimeout)clearTimeout(waitingResponseTimeout);
-		audio.pause();
+    var failureCB = function () {
+        cleanUpCalling();
 		showAlert("请求失败！");
     };
 	
     easyrtc.call(easyrtcid, successCB, failureCB, acceptedCB);
 	
 	waitingResponseTimeout = setTimeout(function(){ closeAlertDialog(function(){showAlert("对方无响应，已挂断本次请求！");})}, 30000);
+}
+
+function cleanUpCalling()
+{
+    if (waitingResponseTimeout) {
+        waitingResponseTimeout = 0;
+        clearTimeout(waitingResponseTimeout);
+    }
+    closeAlertDialog();
+    $('#callerTone')[0].pause();
 }
 
 function disconnect() {
