@@ -38,7 +38,6 @@ function loginSuccess(easyrtcid) {
 	$("#loginBtn").button("reset");
 	$("#videoContainer").removeClass('hide').addClass('show');
 	updateConnectionInfo(easyrtcid);
-	
 }
 
 
@@ -74,10 +73,12 @@ function addSinkButton(label, deviceId){
 function hangup(easyrtcid) {
 	if(easyrtcid)
 	{
-		easyrtc.hangup(easyrtcid);
+        easyrtc.hangup(easyrtcid);
+        $("#talkingTo" + easyrtcid).addClass("hide");
 	}
 	else
 	{
+        $("#userList > li > span").addClass("hide");
 		easyrtc.hangupAll();
 	}
 }
@@ -178,8 +179,8 @@ function performCall(easyrtcid) {
 function cleanUpCalling()
 {
     if (waitingResponseTimeout) {
-        waitingResponseTimeout = 0;
         clearTimeout(waitingResponseTimeout);
+        waitingResponseTimeout = 0;
     }
     closeAlertDialog();
     $('#callerTone')[0].pause();
@@ -206,9 +207,9 @@ easyrtc.setStreamAcceptor( function(easyrtcid, stream) {
 });
 
 
-
 easyrtc.setOnStreamClosed( function (easyrtcid) {
     easyrtc.setVideoObjectSrc(document.getElementById('callerVideo'), "");
+    $("#talkingTo" + easyrtcid).addClass("hide");
 });
 
 
