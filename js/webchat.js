@@ -146,7 +146,7 @@ function performCall(easyrtcid) {
     var acceptedCB = function (accepted, easyrtcid) {
         cleanUpCalling();
         if( !accepted ) {
-            showAlert(easyrtc.idToName(easyrtcid) + " 拒绝了视频请求！");
+		closeAlertDialog(function(){showAlert(easyrtc.idToName(easyrtcid) + " 拒绝了视频请求！");});
         }
     };
 
