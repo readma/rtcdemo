@@ -9,18 +9,8 @@ $(document).ready(function(){
         event.preventDefault();
     });
     $("#loginModal").modal();
-	initEasyRtc();
+	easyrtc.setSocketUrl(":8080")
 });
-
-function initEasyRtc()
-{
-	if(document.location.hostname == "localhost"){
-		easyrtc.setSocketUrl(":8080");
-	}
-	else{
-		easyrtc.setSocketUrl(":808");
-	}
-}
 
 function getKeyByValue(object, value) {
   return Object.keys(object).find(key => object[key] === value);
