@@ -15,9 +15,10 @@
 
 #callerVideo{
 	position: fixed;
-    min-width: 100%;
-    min-height: 100%;
+    width: 100%;
+    height: 100%;
 	border: 1px solid gray;
+	background-color:black;
 }
 
 #selfVideo{
@@ -27,6 +28,7 @@
     width: 20%;
     height: 20%;
 	border: 1px solid gray;
+	background-color:black;
 }
 
 .panel-heading .panel-title:after {
