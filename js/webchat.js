@@ -179,23 +179,24 @@ function cleanUpCalling()
 function disconnect() {
 	easyrtc.disconnect();
 	updateConnectionInfo("");
-  enable("connectButton");
-  disable("disconnectButton"); 
-  easyrtc.clearMediaStream( document.getElementById('selfVideo'));
-  easyrtc.setVideoObjectSrc(document.getElementById("selfVideo"),"");
-  easyrtc.closeLocalMediaStream();
-  easyrtc.setRoomOccupantListener( function(){});  
-  clearConnectList();
-} 
-
+	easyrtc.clearMediaStream( document.getElementById('selfVideo'));
+	easyrtc.setVideoObjectSrc(document.getElementById("selfVideo"),"");
+	easyrtc.closeLocalMediaStream();
+	easyrtc.setRoomOccupantListener( function(){});  
+	$("#userList").empty();
+}
 
 easyrtc.setStreamAcceptor( function(easyrtcid, stream) {
     setUpMirror();
     var video = document.getElementById('callerVideo');
     easyrtc.setVideoObjectSrc(video,stream);
 	$("#talkingTo" + easyrtcid).removeClass("hide");
+	
+	if (document.body.clientWidth < 700)
+	{
+		$("#otherUsers").collapse();
+	}
 });
-
 
 easyrtc.setOnStreamClosed( function (easyrtcid) {
     easyrtc.setVideoObjectSrc(document.getElementById('callerVideo'), "");
@@ -211,7 +212,6 @@ easyrtc.setCallCancelled( function(easyrtcid){
         callerPending = false;
     }
 });
-
 
 easyrtc.setAcceptChecker(function(easyrtcid, callback) {
 	var audio = $('#callerTone')[0];
