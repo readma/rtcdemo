@@ -5644,6 +5644,10 @@ var Easyrtc = function() {
             }
             if (msgData) {
                 dataToShip.msgData = msgData;
+				if (msgType === 'offer')
+				{
+					dataToShip.videoEnabled = easyrtc.videoEnabled;
+				}
             }
 
             logDebug("sending socket message " + JSON.stringify(dataToShip));
@@ -7738,7 +7742,7 @@ var Easyrtc = function() {
                 helper(true);
             }
             else {
-                self.acceptCheck(caller, helper);
+				self.acceptCheck(caller, helper, msg.videoEnabled);
             }
         };
 
