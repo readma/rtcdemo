@@ -163,7 +163,15 @@ function performCall(easyrtcid) {
 	
     easyrtc.call(easyrtcid, successCB, failureCB, acceptedCB);
 	
-	waitingResponseTimeout = setTimeout(function(){ closeAlertDialog(function(){showAlert("对方无响应，已挂断本次请求！");})}, 30000);
+    waitingResponseTimeout = setTimeout(function ()
+    {
+        closeAlertDialog(function ()
+        {
+            $('#callerTone')[0].pause();
+            easyrtc.hangupAll();
+			showAlert("对方无响应，已挂断本次请求！");
+        })
+    }, 30000);
 }
 
 function cleanUpCalling()
@@ -310,8 +318,8 @@ function ezBSAlert (options) {
 		var calbackParam = "";
 		switch (defaults.type) {
 			case 'alert':
-				keyb = "true";
-				backd = "true";
+				//keyb = "true";
+				//backd = "true";
 				$('#ezAlerts-footer').html('<button class="btn btn-' + defaults.alertType + '">' + defaults.okButtonText + '</button>').on('click', ".btn", function () {
 					calbackParam = true;
 					$('#ezAlerts').modal('hide');
